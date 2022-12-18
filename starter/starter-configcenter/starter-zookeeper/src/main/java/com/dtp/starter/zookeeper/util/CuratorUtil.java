@@ -33,14 +33,20 @@ import static com.dtp.common.em.ConfigFileTypeEnum.PROPERTIES;
 @Slf4j
 public class CuratorUtil {
 
+    /**
+     * CuratorFramework 提供了节点的监听功能，当节点数据变化，修改，会调用注册监听事件。
+     */
     private static CuratorFramework curatorFramework;
 
     private static final CountDownLatch COUNT_DOWN_LATCH = new CountDownLatch(1);
 
-    private CuratorUtil() { }
+    private CuratorUtil() {
+    }
+
 
     public static CuratorFramework getCuratorFramework(DtpProperties dtpProperties) {
         if (curatorFramework == null) {
+            // 获取zk连接配置信息
             DtpProperties.Zookeeper zookeeper = dtpProperties.getZookeeper();
             curatorFramework = CuratorFrameworkFactory.newClient(zookeeper.getZkConnectStr(),
                     new ExponentialBackoffRetry(1000, 3));
@@ -69,10 +75,13 @@ public class CuratorUtil {
 
     @SneakyThrows
     public static Map<Object, Object> genPropertiesMap(DtpProperties dtpProperties) {
-
+        // 获取 dtpProperties中，单个配置节点的信息
         val curatorFramework = getCuratorFramework(dtpProperties);
+        // /configserver/dev/dynamic-tp-zookeeper-demo
+        // /configserver/dev/1.0.0/dynamic-tp-zookeeper-demo
         String nodePath = nodePath(dtpProperties);
 
+        // 下面的一段代码，就是将远程的配置信息，转换成Map
         Map<Object, Object> result = Maps.newHashMap();
         if (PROPERTIES.getValue().equalsIgnoreCase(dtpProperties.getConfigType().trim())) {
             result = genPropertiesTypeMap(nodePath, curatorFramework);
@@ -88,6 +97,7 @@ public class CuratorUtil {
     private static Map<Object, Object> genPropertiesTypeMap(String nodePath, CuratorFramework curatorFramework) {
         try {
             final GetChildrenBuilder childrenBuilder = curatorFramework.getChildren();
+            // 获取到远程的配置信息
             final List<String> children = childrenBuilder.watched().forPath(nodePath);
             Map<Object, Object> properties = Maps.newHashMap();
             children.forEach(c -> {

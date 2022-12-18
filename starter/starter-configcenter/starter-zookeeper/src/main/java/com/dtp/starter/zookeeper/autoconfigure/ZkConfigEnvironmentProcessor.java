@@ -26,6 +26,7 @@ public class ZkConfigEnvironmentProcessor implements EnvironmentPostProcessor, O
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
 
         DtpProperties dtpProperties = new DtpProperties();
+        // 将本地yml配置文件中的配置信息，绑定到dtpProperties对象中
         PropertiesBinder.bindDtpProperties(environment, dtpProperties);
         Map<Object, Object> properties = CuratorUtil.genPropertiesMap(dtpProperties);
         if (!checkPropertyExist(environment)) {
