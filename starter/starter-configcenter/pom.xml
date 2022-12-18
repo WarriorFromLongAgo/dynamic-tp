@@ -19,5 +19,6 @@
         <module>cloud-starter-zookeeper</module>
         <module>cloud-starter-consul</module>
         <module>starter-etcd</module>
+        <module>dynamic-tp-spring-boot-starter-http</module>
     </modules>
 </project>
