@@ -1,5 +1,6 @@
 package com.dtp.core.thread;
 
+import com.dtp.core.reject.RejectHandlerGetter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ import static com.dtp.common.em.QueueTypeEnum.buildLbq;
  * are run in a certain order.
  *
  * @author dragon-zhang
- * @date 2022/12/12 09:46
  */
 @Slf4j
 public class OrderedDtpExecutor extends DtpExecutor {
@@ -37,8 +37,9 @@ public class OrderedDtpExecutor extends DtpExecutor {
                               RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
         for (int i = 0; i < corePoolSize; i++) {
-            executors.add(new DtpExecutor(1, 1,
-                    0, TimeUnit.MILLISECONDS, workQueue, threadFactory, handler));
+            executors.add(new DtpExecutor(1, 1, keepAliveTime, unit,
+                    buildLbq(getQueueName(), getQueueCapacity()), buildThreadFactory(i),
+                    RejectHandlerGetter.getProxy(handler)));
         }
     }
     
@@ -102,10 +103,11 @@ public class OrderedDtpExecutor extends DtpExecutor {
         if (corePoolSize < this.executors.size()) {
             throw new IllegalArgumentException();
         }
-        for (int i = 0; i < corePoolSize - this.executors.size(); i++) {
+        for (int i = this.executors.size(); i < corePoolSize; i++) {
             this.executors.add(new DtpExecutor(1, 1,
-                    0, TimeUnit.MILLISECONDS, buildLbq(getQueueName(), getQueueCapacity()),
-                    getThreadFactory(), getRejectedExecutionHandler()));
+                    getKeepAliveTime(TimeUnit.SECONDS), TimeUnit.SECONDS,
+                    buildLbq(getQueueName(), getQueueCapacity()), buildThreadFactory(i),
+                    RejectHandlerGetter.getProxy(getRejectHandlerName())));
         }
     }
     
@@ -127,20 +129,6 @@ public class OrderedDtpExecutor extends DtpExecutor {
     @Override
     public final int getMaximumPoolSize() {
         return getCorePoolSize();
-    }
-
-    @Override
-    public void allowCoreThreadTimeOut(boolean value) {
-        for (ThreadPoolExecutor executor : this.executors) {
-            executor.allowCoreThreadTimeOut(value);
-        }
-    }
-
-    @Override
-    public void setRejectedExecutionHandler(RejectedExecutionHandler handler) {
-        for (ThreadPoolExecutor executor : this.executors) {
-            executor.setRejectedExecutionHandler(handler);
-        }
     }
 
     @Override
@@ -183,5 +171,13 @@ public class OrderedDtpExecutor extends DtpExecutor {
             result = result && executor.awaitTermination(timeout, unit);
         }
         return result;
+    }
+
+    private ThreadFactory buildThreadFactory(int index) {
+        if (getThreadFactory() instanceof NamedThreadFactory) {
+            String prefix = ((NamedThreadFactory) getThreadFactory()).getNamePrefix() + "#" + index;
+            return new NamedThreadFactory(prefix);
+        }
+        return getThreadFactory();
     }
 }

@@ -128,6 +128,16 @@ public class DtpProperties {
     private List<SimpleTpProperties> okhttp3Tp;
 
     /**
+     * Brpc thread pools.
+     */
+    private List<SimpleTpProperties> brpcTp;
+
+    /**
+     * Tars thread pools.
+     */
+    private List<SimpleTpProperties> tarsTp;
+    
+    /**
      * Notify platform configs.
      */
     private List<NotifyPlatform> platforms;
