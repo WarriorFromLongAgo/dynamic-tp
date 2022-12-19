@@ -23,6 +23,16 @@ public class HttpRefreshController {
         this.httpRefresher = httpRefresher;
     }
 
+    /**
+     * httpRefresh
+     *
+     * @author xuegao
+     * @date 2022/12/18 16:53
+     */
+    @PostMapping(path = "/dynamicTp/getDtpProperties")
+    public DtpProperties getDtpProperties() {
+        return httpRefresher.getDtpProperties();
+    }
 
     /**
      * httpRefresh

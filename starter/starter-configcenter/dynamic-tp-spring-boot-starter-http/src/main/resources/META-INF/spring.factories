@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.dtp.starter.http.autoconfigure.DtpAutoConfiguration
+  com.dtp.starter.http.autoconfigure.DtpAutoConfiguration,\
+  com.dtp.starter.http.controller.HttpRefreshController

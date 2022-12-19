@@ -16,6 +16,17 @@ import java.util.Objects;
 public class HttpRefresher extends AbstractRefresher {
 
     /**
+     * getDtpProperties
+     *
+     * @return get dtpProperties
+     * @author xuegao
+     * @date 2022/12/18 16:44
+     */
+    public DtpProperties getDtpProperties() {
+        return dtpProperties;
+    }
+
+    /**
      * requestRefresh
      *
      * @param dtpProperties: request json dtpProperties

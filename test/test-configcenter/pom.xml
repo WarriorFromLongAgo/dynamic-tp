@@ -8,4 +8,12 @@
         <version>1.0.9</version>
     </parent>
     <artifactId>dynamic-tp-test-configcenter</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>cn.dynamictp</groupId>
+            <artifactId>dynamic-tp-spring-boot-starter-http</artifactId>
+            <version>1.0.9</version>
+        </dependency>
+    </dependencies>
 </project>
